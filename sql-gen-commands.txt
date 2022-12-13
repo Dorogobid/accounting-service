@@ -1,0 +1,5 @@
+goose -dir ./migrations postgres "user=as-user password=postgres dbname=as-db sslmode=disable" create init sql
+
+goose -dir ./migrations postgres "user=as-user password=postgres dbname=as-db sslmode=disable" up
+
+sqlc generate
