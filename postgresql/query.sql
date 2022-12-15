@@ -4,6 +4,9 @@ SELECT * FROM client_types ORDER BY id;
 -- name: GetClients :many
 SELECT * FROM clients ORDER BY name;
 
+-- name: GetClientsWithType :many
+SELECT cl.*, ct.name as type_name FROM clients cl, client_types ct WHERE cl.client_type_id=ct.id ORDER BY name;
+
 -- name: GetClientsByType :many
 SELECT * FROM clients
 WHERE client_type_id=$1 ORDER BY name;

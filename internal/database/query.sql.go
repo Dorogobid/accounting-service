@@ -156,6 +156,51 @@ func (q *Queries) GetClientsByType(ctx context.Context, clientTypeID int64) ([]C
 	return items, nil
 }
 
+const getClientsWithType = `-- name: GetClientsWithType :many
+SELECT cl.id, cl.name, cl.client_type_id, cl.tax_code, cl.address, cl.phone_number, ct.name as type_name FROM clients cl, client_types ct WHERE cl.client_type_id=ct.id ORDER BY name
+`
+
+type GetClientsWithTypeRow struct {
+	ID           int32  `json:"id"`
+	Name         string `json:"name"`
+	ClientTypeID int64  `json:"client_type_id"`
+	TaxCode      string `json:"tax_code"`
+	Address      string `json:"address"`
+	PhoneNumber  string `json:"phone_number"`
+	TypeName     string `json:"type_name"`
+}
+
+func (q *Queries) GetClientsWithType(ctx context.Context) ([]GetClientsWithTypeRow, error) {
+	rows, err := q.db.QueryContext(ctx, getClientsWithType)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetClientsWithTypeRow
+	for rows.Next() {
+		var i GetClientsWithTypeRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.ClientTypeID,
+			&i.TaxCode,
+			&i.Address,
+			&i.PhoneNumber,
+			&i.TypeName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateClient = `-- name: UpdateClient :one
 UPDATE clients
 SET name=$2,
